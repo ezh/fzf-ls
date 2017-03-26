@@ -15,6 +15,10 @@
 # See the LICENSE for the specific language governing permissions and
 # limitations under the License.
 
+source ${${(%):-%x}:a:h}/plugin/keys.zsh
+source ${${(%):-%x}:a:h}/plugin/main.zsh
+source ${${(%):-%x}:a:h}/plugin/preview.zsh
+source ${${(%):-%x}:a:h}/plugin/utils.zsh
 source ${${(%):-%x}:a:h}/fzf-ls.zsh
 source ${${(%):-%x}:a:h}/fzf-ls-command.zsh
 source ${${(%):-%x}:a:h}/fzf-ls-action.zsh

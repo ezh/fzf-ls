@@ -1,4 +1,4 @@
-#
+
 # Copyright (C) 2017 Alexey Aksenov <ezh@ezh.msk.ru>.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -122,7 +122,7 @@ function -fzf-ls-header {
 # or
 #     fzf-ls
 function fzf-ls {
-    local out oarr key fzf_options fzf_location ls_options newlinefiles
+    local out selected key fzf_options fzf_location ls_options newlinefiles
     export _FZF_LS_VAR_STOP=""
     export _FZF_LS_VAR_SUDO="$1"
     export _FZF_LS_VAR_HIDDEN="$2"
@@ -132,60 +132,44 @@ function fzf-ls {
     ls_options=("${_FZF_LS_LS_OPTIONS[@]}")
 
     # ask password if needed
-    test -n "$_FZF_LS_VAR_SUDO" && $_FZF_LS_VAR_SUDO true
-    while out=$(
-        # add preview if needed
-        test -n "$_FZF_LS_VAR_PREVIEW" &&
-            fzf_options+=("$_FZF_LS_PREVIEW_LOCATION") && fzf_options+=("--preview=$($_FZF_LS_PREVIEW)");
-        # show hidden files if needed
-        test -n "$_FZF_LS_VAR_HIDDEN" &&
-            ls_options+=($_FZF_LS_PATTERN_HIDE) || ls_options+=($_FZF_LS_PATTERN_SHOW);
-        # ls | fzf
-        $_FZF_LS_VAR_SUDO ls "${ls_options[@]}" "$_FZF_LS_VAR_DIR" | tail -n +3 | \
-            -fzf-ls-header | "$fzf_location" "${fzf_options[@]}" \
-            --bind 'alt-h:preview-page-down,alt-t:preview-page-up' \
-            --expect="${(j:,:)_fzf_ls_key_COMMAND},${(j:,:)_fzf_ls_key_HIDDEN},${(j:,:)_fzf_ls_key_EXIT},"'ctrl-p,ctrl-z' --toggle-sort=\`)
-    do
+    test -n "$__fzf_ls__sudo_cmd" && "$__fzf_ls__sudo_cmd" true
+    while out=$(--fzf-ls::main::executable fzf_options ls_options); do
         # http://unix.stackexchange.com/questions/29724/how-to-properly-collect-an-array-of-lines-in-zsh
-        oarr=("${(@f)out}")
-        key=$oarr[1]
-        oarr=(${oarr:1})
-        for (( i = 1; i <= $#oarr; i++ ))
-        do
-            oarr[i]=$(awk $_FZF_LS_VAR_FILTER <<< $oarr[i])
+        selected=("${(@f)out}")
+        key=$selected[1]
+        for (( i = 2; i <= $#selected; i++ )); do
+            selected[(i - 1)]=$(awk $__fzf_ls__ls_filter <<< $selected[i])
+            selected[i]=()
         done
-        newlinefiles=${(F)oarr}
-        if [[ -n "$key" && "${_fzf_ls_key_COMMAND[(r)$key]}" == "$key" ]]
-        then
-            # key COMMAND like ;
-            key=$($_FZF_LS_COMMAND $newlinefiles)
-            $_FZF_LS_ACTION "$newlinefiles" "$key"
-            test -n "$_FZF_LS_VAR_STOP" && return
-        elif [[ -n "$key" && "${_fzf_ls_key_EXIT[(r)$key]}" == "$key" ]]
-        then
-            # key EXIT like Esc
-            ls_options=("${_FZF_LS_LS_OPTIONS[@]}")
-            test -n "$_FZF_LS_VAR_HIDDEN" && ls_options+=($_FZF_LS_PATTERN_HIDE) ||
-                ls_options+=($_FZF_LS_PATTERN_SHOW);
-            $_FZF_LS_VAR_SUDO ls "${ls_options[@]}" "$_FZF_LS_VAR_DIR" | tail -n +3
-            return
-        elif [[ -n "$key" && "${_fzf_ls_key_HIDDEN[(r)$key]}" == "$key" ]]
-        then
-            # key toggle HIDDEN like ~
-            test -n "$_FZF_LS_VAR_HIDDEN" && export _FZF_LS_VAR_HIDDEN="" || export _FZF_LS_VAR_HIDDEN=YES
-        elif [[ "$key" == 'ctrl-p' ]]
-        then
-            test -n "$_FZF_LS_VAR_PREVIEW" && export _FZF_LS_VAR_PREVIEW="" || export _FZF_LS_VAR_PREVIEW=YES
-        else
-            if [[ $#oarr -eq 1 && -d "$_FZF_LS_VAR_DIR/$newlinefiles" ]]
+        if [[ -z "$key" ]]; then
+            # key ENTER
+            if [[ $#selected -eq 1 && -d "$__fzf_ls__directory/$selected" ]]
             then
-                cd "$_FZF_LS_VAR_DIR/$newlinefiles"
-                export _FZF_LS_VAR_DIR=$(readlink -e .)
+                cd "$__fzf_ls__directory/$selected"
+                $__fzf_ls__directory=$(readlink -e .)
             else
-                key=$($_FZF_LS_COMMAND $newlinefiles)
-                $_FZF_LS_ACTION "$newlinefiles" "$key"
+                key=$($_FZF_LS_COMMAND ${(F)selected})
+                $_FZF_LS_ACTION ${(F)selected} $key
                 test -n "$_FZF_LS_VAR_STOP" && return
             fi
+        elif [[ "${__fzf_ls__key_COMMAND[(r)$key]}" == "$key" ]]; then
+            # key COMMAND mode
+            key=$($_FZF_LS_COMMAND ${(F)selected})
+            $_FZF_LS_ACTION ${(F)selected} $key
+            test -n "$_FZF_LS_VAR_STOP" && return
+        elif [[ "${__fzf_ls__key_EXIT[(r)$key]}" == "$key" ]]; then
+            # key EXIT
+            --fzf-ls::main::executable::ls ls_options
+            return
+        elif [[ "${__fzf_ls__key_HIDDEN[(r)$key]}" == "$key" ]]; then
+            # key toggle HIDDEN
+            --fzf-ls::utils::hidden::toggle
+        elif [[ "${__fzf_ls__key_PREVIEW[(r)$key]}" == "$key" ]]; then
+            # key toggle PREVIEW
+            --fzf-ls::utils::preview::toggle
+        else
+            echo "Warning: unknown key $key" >&2
+            sleep 1
         fi
   done
 }
