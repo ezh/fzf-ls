@@ -15,6 +15,17 @@
 # See the LICENSE for the specific language governing permissions and
 # limitations under the License.
 
+
+# key to start VI command mode
+_fzf_ls_key_COMMAND=(";")
+_fzf_ls_key_COMMAND_hint=(";")
+# key toggle hidden files
+_fzf_ls_key_HIDDEN=("~")
+_fzf_ls_key_HIDDEN_hint=("~")
+# key exit
+_fzf_ls_key_EXIT=("esc" "ctrl-c")
+_fzf_ls_key_EXIT_hint=("C-C/Esc")
+
 # function with fzf-ls action (reaction)
 export _FZF_LS_ACTION="-fzf-ls-action"
 # skip default fzf-ls aliases (define before plugin loader)
@@ -37,6 +48,8 @@ export _FZF_LS_PATTERN_HIDE='--ignore=.??*'
 export _FZF_LS_PREVIEW="-fzf-ls-preview-alt"
 # fzf-ls preview argument array
 export _FZF_LS_PREVIEW_LOCATION="--preview-window=right:30%"
+
+
 # fzf-ls awk filter definition
 export _FZF_LS_VAR_FILTER='{
         # remove the beginning
@@ -91,7 +104,12 @@ function -fzf-ls-preview-alt() {
 function -fzf-ls-header {
     local sudo
     test -n "$_FZF_LS_VAR_SUDO" && sudo="SUDO " || sudo="" &&
-    echo "C-Spc/: \u26a1, ~ hidden\u00B1, C-P preview\u00B1, A-H preview\u2193, A-T preview\u2191, C-C/Esc \u2620" &&
+        echo -n "$_fzf_ls_key_COMMAND_hint \u26a1, " &&
+        echo -n "$_fzf_ls_key_HIDDEN_hint hidden\u00B1, " &&
+        echo -n "C-P preview\u00B1, " &&
+        echo -n "A-H preview\u2193, " &&
+        echo -n "A-T preview\u2191, " &&
+        echo "$_fzf_ls_key_EXIT_hint \u2620" &&
     echo -n "$sudo-> " &&
     pwd &&
     cat
@@ -126,7 +144,7 @@ function fzf-ls {
         $_FZF_LS_VAR_SUDO ls "${ls_options[@]}" "$_FZF_LS_VAR_DIR" | tail -n +3 | \
             -fzf-ls-header | "$fzf_location" "${fzf_options[@]}" \
             --bind 'alt-h:preview-page-down,alt-t:preview-page-up' \
-            --expect='esc,:,~,ctrl-c,ctrl-p,ctrl-z,ctrl-space' --toggle-sort=\`)
+            --expect="${(j:,:)_fzf_ls_key_COMMAND},${(j:,:)_fzf_ls_key_HIDDEN},${(j:,:)_fzf_ls_key_EXIT},"'ctrl-p,ctrl-z' --toggle-sort=\`)
     do
         # http://unix.stackexchange.com/questions/29724/how-to-properly-collect-an-array-of-lines-in-zsh
         oarr=("${(@f)out}")
@@ -137,20 +155,23 @@ function fzf-ls {
             oarr[i]=$(awk $_FZF_LS_VAR_FILTER <<< $oarr[i])
         done
         newlinefiles=${(F)oarr}
-        if [[ "$key" == 'ctrl-space' || "$key" == ':' ]]
+        if [[ -n "$key" && "${_fzf_ls_key_COMMAND[(r)$key]}" == "$key" ]]
         then
+            # key COMMAND like ;
             key=$($_FZF_LS_COMMAND $newlinefiles)
             $_FZF_LS_ACTION "$newlinefiles" "$key"
             test -n "$_FZF_LS_VAR_STOP" && return
-        elif [[ "$key" == 'esc' || "$key" == 'ctrl-c' ]]
+        elif [[ -n "$key" && "${_fzf_ls_key_EXIT[(r)$key]}" == "$key" ]]
         then
+            # key EXIT like Esc
             ls_options=("${_FZF_LS_LS_OPTIONS[@]}")
             test -n "$_FZF_LS_VAR_HIDDEN" && ls_options+=($_FZF_LS_PATTERN_HIDE) ||
                 ls_options+=($_FZF_LS_PATTERN_SHOW);
             $_FZF_LS_VAR_SUDO ls "${ls_options[@]}" "$_FZF_LS_VAR_DIR" | tail -n +3
             return
-        elif [[ "$key" == '~' ]]
+        elif [[ -n "$key" && "${_fzf_ls_key_HIDDEN[(r)$key]}" == "$key" ]]
         then
+            # key toggle HIDDEN like ~
             test -n "$_FZF_LS_VAR_HIDDEN" && export _FZF_LS_VAR_HIDDEN="" || export _FZF_LS_VAR_HIDDEN=YES
         elif [[ "$key" == 'ctrl-p' ]]
         then
