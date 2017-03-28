@@ -29,12 +29,15 @@ __fzf_ls__hidden_pattern_show='--ignore=\.$'
 # fzf-ls ls command
 __fzf_ls__ls_cmd='ls'
 # fzf-ls awk filter definition
-# remove the beginning
-#     "lrwxr-xr-x 1 root wheel 15 aliases -> postfix/aliases"
-#     " aliases -> postfix/aliases"
-# remove leading whitespaces
-# remove symlink tail
-__fzf_ls__ls_filter='{sub(".*" $5 FS,""); gsub(/^[ \t]+/, "", $0); gsub(/ -> .*$/, "", $0); print $0}'
+# 1. cut head "lrwxr-xr-x 1 root wheel 15 aliases -> postfix/aliases" -> "aliases -> postfix/aliases"
+# 2. drop leading spaces
+# 3. drop tail "aliases -> postfix/aliases" -> "aliases"
+# 4. print
+__fzf_ls__ls_filter='{
+    $1="";$2="";$3="";$4="";$5="";
+    gsub(/^[ ]+/, "", $0);
+    gsub(/ -> .*$/, "", $0);
+    print $0}'
 # fzf-ls sudo command
 __fzf_ls__sudo_cmd=''
 
@@ -89,5 +92,14 @@ function --fzf-ls::main::executable::fzf::header {
         "$__fzf_ls__key_PREDOWN_hint\u25B9preview\u2191 " \
         "$__fzf_ls__key_EXIT_hint\u25B9\u2620" \
         "\n${sudo}-> " && pwd && cat
+}
+
+function --fzf-ls::main::get-selected {
+    # Get selected files
+    local selected=("${(@f)1}")
+    for (( i = 2; i <= $#selected; i++ )); do
+        selected[i]=$(awk $__fzf_ls__ls_filter <<< $selected[i])
+    done
+    echo "${(F)selected}"
 }
 

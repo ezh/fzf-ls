@@ -37,7 +37,7 @@ export _FZF_LS_COMMAND="-fzf-ls-command"
 # location of fzf
 export _FZF_LS_FZF="$(which fzf)"
 # default array with fzf options
-export _FZF_LS_FZF_OPTIONS=('-e' '+i' '-n6..' '--ansi' '--no-sort' '--reverse' '--header-lines=2' '-m')
+export _FZF_LS_FZF_OPTIONS=('-e' '+i' '-n6..' '--ansi' '--no-sort' '--reverse' '--header-lines=2' '-m' '--no-clear')
 # default array with ls options
 export _FZF_LS_LS_OPTIONS=('-alhN' '--group-directories-first' '--time-style=+' '--color')
 # default ls pattern for 'all files visible' (except .)
@@ -127,7 +127,7 @@ function fzf-ls {
     export _FZF_LS_VAR_SUDO="$1"
     export _FZF_LS_VAR_HIDDEN="$2"
     fzf_location="${3:-$_FZF_LS_FZF}"
-    export _FZF_LS_VAR_DIR=$(readlink -e "${4:-.}")
+    __fzf_ls__directory=$(readlink -e "${4:-.}")
     fzf_options=("${_FZF_LS_FZF_OPTIONS[@]}")
     ls_options=("${_FZF_LS_LS_OPTIONS[@]}")
 
@@ -135,26 +135,24 @@ function fzf-ls {
     test -n "$__fzf_ls__sudo_cmd" && "$__fzf_ls__sudo_cmd" true
     while out=$(--fzf-ls::main::executable fzf_options ls_options); do
         # http://unix.stackexchange.com/questions/29724/how-to-properly-collect-an-array-of-lines-in-zsh
-        selected=("${(@f)out}")
+        selected=("${(f)$(--fzf-ls::main::get-selected ""$out"")}")
         key=$selected[1]
-        for (( i = 2; i <= $#selected; i++ )); do
-            selected[(i - 1)]=$(awk $__fzf_ls__ls_filter <<< $selected[i])
-            selected[i]=()
-        done
+        selected[1]=()
+        selected=("${selected[@]}")
         if [[ -z "$key" ]]; then
             # key ENTER
             if [[ $#selected -eq 1 && -d "$__fzf_ls__directory/$selected" ]]
             then
                 cd "$__fzf_ls__directory/$selected"
-                $__fzf_ls__directory=$(readlink -e .)
+                __fzf_ls__directory=$(readlink -e .)
             else
-                key=$($_FZF_LS_COMMAND ${(F)selected})
+                key=$($_FZF_LS_COMMAND "${(F)selected}")
                 $_FZF_LS_ACTION ${(F)selected} $key
                 test -n "$_FZF_LS_VAR_STOP" && return
             fi
         elif [[ "${__fzf_ls__key_COMMAND[(r)$key]}" == "$key" ]]; then
             # key COMMAND mode
-            key=$($_FZF_LS_COMMAND ${(F)selected})
+            key=$($_FZF_LS_COMMAND "${(F)selected}")
             $_FZF_LS_ACTION ${(F)selected} $key
             test -n "$_FZF_LS_VAR_STOP" && return
         elif [[ "${__fzf_ls__key_EXIT[(r)$key]}" == "$key" ]]; then

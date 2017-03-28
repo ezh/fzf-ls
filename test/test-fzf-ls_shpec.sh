@@ -80,5 +80,15 @@ describe "test that --fzf-ls::main::executable"
 
         assert equal "$#result" "$expect_lines"
     end
+    it "should have proper ls filter"
+        FILE=$(awk $__fzf_ls__ls_filter <<< 'lrwxr-xr-x 1 root wheel 15 aliases -> postfix/aliases')
+        assert equal "$FILE" "aliases"
+    end
+    it "should process selected values"
+        VALUES=';
+-rw-r--r--  1 u g  484  a
+-rw-r--r--  1 u g  484  b'
+        assert equal "$(--fzf-ls::main::get-selected ""${VALUES}"")" $';\na\nb'
+    end
 end
 
