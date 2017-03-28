@@ -47,25 +47,6 @@ describe "test that --fzf-ls::main::executable"
         result=$(--fzf-ls::main::executable::ls ls_options_in)
         assert equal "$result" " a b c --ignore=\.$ ."
     end
-    it "should be able to show preview window"
-        local __fzf_ls__preview_flag='YES'
-        local __fzf_ls__preview="--fzf-ls::preview::mock"
-        local __fzf_ls__fzf_cmd="echo"
-        local fzf_options_in=("x" "y" "z")
-
-        function --fzf-ls::preview::mock { echo "test" }
-        result=$(echo | --fzf-ls::main::executable::fzf fzf_options_in)
-        assert equal "$result" 'x y z --preview-window=right:30% --preview=test --bind alt-j:preview-page-down,alt-k:preview-page-up --expect=;,.,,,ctrl-c,esc --toggle-sort=`'
-    end
-    it "should be able to hide preview window"
-        local __fzf_ls__preview_flag=''
-        local __fzf_ls__fzf_cmd="echo"
-        local fzf_options_in=("x" "y" "z")
-
-        function --fzf-ls::preview::mock { echo "test" }
-        result=$(echo | --fzf-ls::main::executable::fzf fzf_options_in)
-        assert equal "$result" 'x y z --bind alt-j:preview-page-down,alt-k:preview-page-up --expect=;,.,,,ctrl-c,esc --toggle-sort=`'
-    end
     it "should generate correct default header"
         local __fzf_ls__sudo_cmd=''
 

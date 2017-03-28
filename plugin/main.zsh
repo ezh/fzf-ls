@@ -29,17 +29,12 @@ __fzf_ls__hidden_pattern_show='--ignore=\.$'
 # fzf-ls ls command
 __fzf_ls__ls_cmd='ls'
 # fzf-ls awk filter definition
-__fzf_ls__ls_filter='{
-        # remove the beginning
-        #     "lrwxr-xr-x 1 root wheel 15 aliases -> postfix/aliases"
-        #     " aliases -> postfix/aliases"
-        sub(".*" $5 FS,"");
-        # remove leading whitespaces
-        gsub(/^[ \t]+/, "", $0);
-        # remove symlink tail
-        gsub(/ -> .*$/, "", $0);
-        print $0
-    }'
+# remove the beginning
+#     "lrwxr-xr-x 1 root wheel 15 aliases -> postfix/aliases"
+#     " aliases -> postfix/aliases"
+# remove leading whitespaces
+# remove symlink tail
+__fzf_ls__ls_filter='{sub(".*" $5 FS,""); gsub(/^[ \t]+/, "", $0); gsub(/ -> .*$/, "", $0); print $0}'
 # fzf-ls sudo command
 __fzf_ls__sudo_cmd=''
 

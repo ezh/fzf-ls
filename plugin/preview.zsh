@@ -44,11 +44,11 @@ function --fzf-ls::preview::alt {
             SEDMAGIC='"'"'s;[^/]*/;|____;g;s;____|; |;g'"'"'
             '"$__fzf_ls__sudo_cmd"' find "$2" -maxdepth $1 -type d -print 2>/dev/null | sed -e "$SEDMAGIC"
         }
-        FILE=$(awk '"'$__fzf_ls__ls_filter'"' <<< {})
-        if [[ -d "'"$__fzf_ls__directory"'/$FILE" ]]; then
-            --fzf-ls::preview::tree 2 "'"$__fzf_ls__directory"'/$FILE"
-        else
-            '"$__fzf_ls__sudo_cmd"' highlight -q --force -O xterm256 "'"$__fzf_ls__directory"'/$FILE"
-        fi'
+        FILE=$(awk '$__fzf_ls__ls_filter' <<< $AAA)
+        #if [[ -d "'"$__fzf_ls__directory"'/$FILE" ]]; then
+        #    --fzf-ls::preview::tree 2 "'"$__fzf_ls__directory"'/$FILE"
+        #else
+        #    '"$__fzf_ls__sudo_cmd"' highlight -q --force -O xterm256 "'"$__fzf_ls__directory"'/$FILE"
+        #fi'
 }
 

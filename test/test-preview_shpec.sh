@@ -1,3 +1,4 @@
+eval 'OUT=$(awk ''{sub(".*" $5 FS,"");gsub(/^\s+/, "", $0);gsub(/ -> .*$/, "", $0);print $0}'' <<< ''lrwxr-xr-x 1 root wheel 15 aliases -> postfix/aliase'')';echo $OUT
 describe "test that --fzf-ls::preview"
     it "should generate correct preview alt"
 read -r -d '' VAR <<'EOF'
@@ -22,7 +23,28 @@ read -r -d '' VAR <<'EOF'
              highlight -q --force -O xterm256 "./$FILE"
         fi
 EOF
+        echo "$(--fzf-ls::preview::alt)" > a
+        echo "$VAR" > b
         assert equal "$(--fzf-ls::preview::alt)" "$VAR"
+    end
+    it "should be able to show preview window"
+        local __fzf_ls__preview_flag='YES'
+        local __fzf_ls__preview="--fzf-ls::preview::mock"
+        local __fzf_ls__fzf_cmd="echo"
+        local fzf_options_in=("x" "y" "z")
+
+        function --fzf-ls::preview::mock { echo "test" }
+        result=$(echo | --fzf-ls::main::executable::fzf fzf_options_in)
+        assert equal "$result" 'x y z --preview-window=right:30% --preview=test --bind alt-j:preview-page-down,alt-k:preview-page-up --expect=;,.,,,ctrl-c,esc --toggle-sort=`'
+    end
+    it "should be able to hide preview window"
+        local __fzf_ls__preview_flag=''
+        local __fzf_ls__fzf_cmd="echo"
+        local fzf_options_in=("x" "y" "z")
+
+        function --fzf-ls::preview::mock { echo "test" }
+        result=$(echo | --fzf-ls::main::executable::fzf fzf_options_in)
+        assert equal "$result" 'x y z --bind alt-j:preview-page-down,alt-k:preview-page-up --expect=;,.,,,ctrl-c,esc --toggle-sort=`'
     end
 end
 
