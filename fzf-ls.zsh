@@ -1,4 +1,4 @@
-
+#
 # Copyright (C) 2017 Alexey Aksenov <ezh@ezh.msk.ru>.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -157,6 +157,7 @@ function fzf-ls {
             test -n "$_FZF_LS_VAR_STOP" && return
         elif [[ "${__fzf_ls__key_EXIT[(r)$key]}" == "$key" ]]; then
             # key EXIT
+            tput rmcup
             --fzf-ls::main::executable::ls ls_options
             return
         elif [[ "${__fzf_ls__key_HIDDEN[(r)$key]}" == "$key" ]]; then
