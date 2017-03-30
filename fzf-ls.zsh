@@ -133,7 +133,7 @@ function fzf-ls {
 
     # ask password if needed
     test -n "$__fzf_ls__sudo_cmd" && "$__fzf_ls__sudo_cmd" true
-    while out=$(--fzf-ls::main::executable fzf_options ls_options); do
+    while out=$(--fzf-ls::main::executable "$fzf_location" fzf_options ls_options); do
         # http://unix.stackexchange.com/questions/29724/how-to-properly-collect-an-array-of-lines-in-zsh
         selected=("${(f)$(--fzf-ls::main::get-selected ""$out"")}")
         key=$selected[1]

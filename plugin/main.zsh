@@ -44,9 +44,10 @@ __fzf_ls__sudo_cmd=''
 
 function --fzf-ls::main::executable {
     # Core part: ls | fzf
-    local fzf_options=(${(P)1})
-    local ls_options=(${(P)2})
-    --fzf-ls::main::executable::ls ls_options | --fzf-ls::main::executable::fzf fzf_options
+    local fzf_location="$1"
+    local fzf_options=(${(P)2})
+    local ls_options=(${(P)3})
+    --fzf-ls::main::executable::ls ls_options | --fzf-ls::main::executable::fzf "$fzf_location" fzf_options
 }
 
 
@@ -62,11 +63,12 @@ function --fzf-ls::main::executable::ls {
 
 function --fzf-ls::main::executable::fzf {
     # Execute FZF
-    local fzf_options=(${(P)1})
+    local fzf_location="$1"
+    local fzf_options=(${(P)2})
     # add preview if needed
     test -n "$__fzf_ls__preview_flag" &&
         fzf_options+=("$__fzf_ls__preview_location" "--preview=$($__fzf_ls__preview)")
-    --fzf-ls::main::executable::fzf::header | "$__fzf_ls__fzf_cmd" "${fzf_options[@]}" \
+    --fzf-ls::main::executable::fzf::header | "$fzf_location" "${fzf_options[@]}" \
         --bind "$__fzf_ls__key_PREDOWN:preview-page-down,$__fzf_ls__key_PREUP:preview-page-up" \
         --expect=$(--fzf-ls::main::executable::fzf::keys) --toggle-sort=\`
 }
