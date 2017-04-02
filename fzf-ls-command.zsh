@@ -33,6 +33,7 @@ function -fzf-ls-command {
     [[ $selected_lines -gt 0 ]] && options="$options"$'\n'"m move selected items"
     [[ $selected_lines -eq 1 ]] && options="$options"$'\n'"o open selected items"
     [[ $buffer_lines -gt 1 ]]   && options="$options"$'\n'"p paste buffered items"
+    [[ $selected_lines -gt -1 ]] && options="$options"$'\n'"q quit"
     [[ $selected_lines -gt 0 ]] && options="$options"$'\n'"r return selected items"
     options=$(tail -n +2 <<< "$options")
     keys=$(awk 'BEGIN{ORS=","} {print $1}' <<< "$options")

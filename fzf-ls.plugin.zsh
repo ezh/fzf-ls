@@ -25,12 +25,12 @@ source ${${(%):-%x}:a:h}/fzf-ls-action.zsh
 
 if [[ -z "$FZF_LS_ALIAS_SKIP" ]]
 then
-    alias l='fzf-ls "" "HIDE" "$(which fzf)"'
-    alias la='fzf-ls "" "" "$(which fzf)"'
-    alias lt='fzf-ls "" "HIDE" "$(which fzf-tmux)"'
-    alias lta='fzf-ls "" "" "$(which fzf-tmux)"'
-    alias ll='fzf-ls "sudo" "HIDE" "$(which fzf)"'
-    alias lla='fzf-ls "sudo" "" "$(which fzf)"'
-    alias llt='fzf-ls "sudo" "HIDE" "$(which fzf-tmux)"'
-    alias llta='fzf-ls "sudo" "" "$(which fzf-tmux)"'
+    alias l='fzf-ls "" "" "$(which fzf)"'
+    alias la='fzf-ls "" "SHOW" "$(which fzf)"'
+    alias lt='fzf-ls "" "" "$(which fzf-tmux)"'
+    alias lta='fzf-ls "" "SHOW" "$(which fzf-tmux)"'
+    alias ll='fzf-ls "sudo" "" "$(which fzf)"'
+    alias lla='fzf-ls "sudo" "SHOW" "$(which fzf)"'
+    alias llt='fzf-ls "sudo" "" "$(which fzf-tmux)"'
+    alias llta='fzf-ls "sudo" "SHOW" "$(which fzf-tmux)"'
 fi

@@ -67,6 +67,10 @@ function -fzf-ls-action {
             eval "mv -fi $lfiles . && rm $_FZF_LS_BUFFER"
         fi
         ;;
+    q)
+        tput rmcup
+        export _FZF_LS_VAR_STOP=TRUE
+        ;;
     r)
         cmd=""
         for (( i = 1; i <= $#afiles; i++ ))
