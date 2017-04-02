@@ -18,16 +18,16 @@ describe "test that --fzf-ls::main::executable"
         echo -n >| $tmpfile
         functions[--fzf-ls::test:orig_a]=$functions[--fzf-ls::main::executable::ls]
         functions[--fzf-ls::test:orig_b]=$functions[--fzf-ls::main::executable::fzf]
-        function --fzf-ls::preview::mock { echo "test" }
         function --fzf-ls::main::executable::ls { echo "${(P)1}" >> $tmpfile }
-        function --fzf-ls::main::executable::fzf { echo "${(P)1}" >> $tmpfile }
-        --fzf-ls::main::executable "fzf_options_in" "ls_options_in"
+        function --fzf-ls::main::executable::fzf { echo "$1" >> $tmpfile; echo "${(P)2}" >> $tmpfile }
+        --fzf-ls::main::executable "/path/to/fzf" "fzf_options_in" "ls_options_in"
         functions[--fzf-ls::main::executable::ls]=$functions[--fzf-ls::test:orig_a]
         functions[--fzf-ls::main::executable::fzf]=$functions[--fzf-ls::test:orig_b]
         local result=("${(f)$(cat $tmpfile)}")
 
-        assert equal "$result[2]" "a b c"
-        assert equal "$result[1]" "x y z"
+        assert equal "$result[1]" "/path/to/fzf"
+        assert equal "$result[2]" "x y z"
+        assert equal "$result[3]" "a b c"
     end
     it "should be able to hide specific files"
         local __fzf_ls__hidden_flag=''
