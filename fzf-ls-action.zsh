@@ -25,7 +25,7 @@ function -fzf-ls-action {
     afiles=("${(@f)files}")
     for (( i = 1; i <= $#afiles; i++ ))
     do
-        afiles[i]=$(readlink -e "$_FZF_LS_VAR_DIR/$afiles[i]")
+        afiles[i]=$(readlink -e "$__fzf_ls__directory/$afiles[i]")
     done
     # list of files 'a' 'b' 'c'
     lfiles="'"${(j:' ':)afiles}"'"
@@ -75,6 +75,7 @@ function -fzf-ls-action {
         done
         print -z "$cmd"
         echo ${(F)afiles}
+        tput rmcup
         export _FZF_LS_VAR_STOP=TRUE
         ;;
     esac

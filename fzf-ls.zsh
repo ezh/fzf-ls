@@ -24,16 +24,8 @@ export _FZF_LS_ALIAS_SKIP=""
 export _FZF_LS_BUFFER="/tmp/fzf_ls_buffer.txt"
 # function with fzf-ls command (menu)
 export _FZF_LS_COMMAND="-fzf-ls-command"
-# default ls pattern for 'all files visible' (except .)
-export _FZF_LS_PATTERN_SHOW='--ignore=\.$'
-# default ls pattern for 'dot files hidden'
-export _FZF_LS_PATTERN_HIDE='--ignore=.??*'
-
-
 # fzf-ls boolean exit flag for internal usage (it is always false at the beginning)
 export _FZF_LS_VAR_STOP=""
-# fzf-ls working directory
-export _FZF_LS_VAR_DIR="."
 
 
 #
