@@ -60,6 +60,16 @@ function --fzf-ls::main::executable::ls {
     $__fzf_ls__sudo_cmd $__fzf_ls__ls_cmd "${ls_options[@]}" "$__fzf_ls__directory" | tail -n +3
 }
 
+function --fzf-ls::main::executable::ls::alt {
+    # Execute ls
+    local ls_options=(${(P)1})
+    # show hidden files if needed
+    test -n "$__fzf_ls__hidden_flag" &&
+        ls_options+=("$__fzf_ls__hidden_pattern_show") || ls_options+=("$__fzf_ls__hidden_pattern_hide")
+    local output=$($__fzf_ls__sudo_cmd $__fzf_ls__ls_cmd "${ls_options[@]}" "$__fzf_ls__directory" | tail -n +3)
+    echo $output | awk '/^d/' | sort -k 6
+    echo $output | awk '/^[^d]+/' | sort -k 6
+}
 
 function --fzf-ls::main::executable::fzf {
     # Execute FZF
