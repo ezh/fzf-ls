@@ -20,6 +20,8 @@
 __fzf_ls__directory='.'
 # location of fzf
 __fzf_ls__fzf_cmd="$(which fzf)"
+# default array with fzf options
+__fzf_ls__fzf_options=('-e' '+i' '-n6..' '--ansi' '--no-sort' '--reverse' '--header-lines=2' '-m' '--no-clear')
 # fzf-ls boolean show hidden flag for internal usage
 __fzf_ls__hidden_flag=''
 # default ls pattern for 'all files visible' (except .)
@@ -28,6 +30,8 @@ __fzf_ls__hidden_pattern_hide='--ignore=.??*'
 __fzf_ls__hidden_pattern_show='--ignore=\.$'
 # fzf-ls ls command
 __fzf_ls__ls_cmd='ls'
+# default array with ls options
+__fzf_ls__ls_options=('-alhN' '--group-directories-first' '--time-style=+' '--color')
 # fzf-ls awk filter definition
 # 1. cut head "lrwxr-xr-x 1 root wheel 15 aliases -> postfix/aliases" -> "aliases -> postfix/aliases"
 # 2. drop leading spaces
@@ -40,7 +44,6 @@ __fzf_ls__ls_filter='{
     print $0}'
 # fzf-ls sudo command
 __fzf_ls__sudo_cmd=''
-
 
 function --fzf-ls::main::executable {
     # Core part: ls | fzf

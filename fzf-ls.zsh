@@ -16,16 +16,6 @@
 # limitations under the License.
 
 
-# key to start VI command mode
-_fzf_ls_key_COMMAND=(";")
-_fzf_ls_key_COMMAND_hint=(";")
-# key toggle hidden files
-_fzf_ls_key_HIDDEN=("~")
-_fzf_ls_key_HIDDEN_hint=("~")
-# key exit
-_fzf_ls_key_EXIT=("esc" "ctrl-c")
-_fzf_ls_key_EXIT_hint=("C-C/Esc")
-
 # function with fzf-ls action (reaction)
 export _FZF_LS_ACTION="-fzf-ls-action"
 # skip default fzf-ls aliases (define before plugin loader)
@@ -34,12 +24,6 @@ export _FZF_LS_ALIAS_SKIP=""
 export _FZF_LS_BUFFER="/tmp/fzf_ls_buffer.txt"
 # function with fzf-ls command (menu)
 export _FZF_LS_COMMAND="-fzf-ls-command"
-# location of fzf
-export _FZF_LS_FZF="$(which fzf)"
-# default array with fzf options
-export _FZF_LS_FZF_OPTIONS=('-e' '+i' '-n6..' '--ansi' '--no-sort' '--reverse' '--header-lines=2' '-m' '--no-clear')
-# default array with ls options
-export _FZF_LS_LS_OPTIONS=('-alhN' '--group-directories-first' '--time-style=+' '--color')
 # default ls pattern for 'all files visible' (except .)
 export _FZF_LS_PATTERN_SHOW='--ignore=\.$'
 # default ls pattern for 'dot files hidden'
@@ -48,8 +32,6 @@ export _FZF_LS_PATTERN_HIDE='--ignore=.??*'
 
 # fzf-ls boolean exit flag for internal usage (it is always false at the beginning)
 export _FZF_LS_VAR_STOP=""
-# fzf-ls string with sudo value (it is always set at the beginning from $1)
-export _FZF_LS_VAR_SUDO=""
 # fzf-ls working directory
 export _FZF_LS_VAR_DIR="."
 
@@ -59,15 +41,21 @@ export _FZF_LS_VAR_DIR="."
 #     fzf-ls "sudo" "YES" "/full/path/to/fzf" "/dir"
 # or
 #     fzf-ls
+# arguments:
+#   - sudo command or empty value
+#   - show hidden files boolean flag or empty value
+#   - path to fzf executable or empty value
+#   - path to target directory or empty value
+#
 function fzf-ls {
     local out selected key fzf_options fzf_location ls_options newlinefiles
     export _FZF_LS_VAR_STOP=""
-    export _FZF_LS_VAR_SUDO="$1"
-    export _FZF_LS_VAR_HIDDEN="$2"
-    fzf_location="${3:-$_FZF_LS_FZF}"
     __fzf_ls__directory=$(readlink -e "${4:-.}")
-    fzf_options=("${_FZF_LS_FZF_OPTIONS[@]}")
-    ls_options=("${_FZF_LS_LS_OPTIONS[@]}")
+    __fzf_ls__hidden_flag="$2"
+    __fzf_ls__sudo_cmd="$1"
+    fzf_location="${3:-$__fzf_ls__fzf_cmd}"
+    fzf_options=("${__fzf_ls__fzf_options[@]}")
+    ls_options=("${__fzf_ls__ls_options[@]}")
 
     # ask password if needed
     test -n "$__fzf_ls__sudo_cmd" && "$__fzf_ls__sudo_cmd" true
