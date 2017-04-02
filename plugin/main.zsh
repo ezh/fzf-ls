@@ -69,9 +69,11 @@ function --fzf-ls::main::executable::ls::alt {
     # show hidden files if needed
     test -n "$__fzf_ls__hidden_flag" &&
         ls_options+=("$__fzf_ls__hidden_pattern_show") || ls_options+=("$__fzf_ls__hidden_pattern_hide")
-    local output=$($__fzf_ls__sudo_cmd $__fzf_ls__ls_cmd "${ls_options[@]}" "$__fzf_ls__directory" | tail -n +3)
-    echo $output | awk '/^d/' | sort -k 6
-    echo $output | awk '/^[^d]+/' | sort -k 6
+    local output=$($__fzf_ls__sudo_cmd $__fzf_ls__ls_cmd "${ls_options[@]}" "$__fzf_ls__directory" )
+    echo $output | sed '3!d'
+    # sort hack for UTF8 encoding, LC_ALL force to sort all characters
+    echo $output | tail -n +4 | awk '/^d/' | LC_ALL=C sort -k 6
+    echo $output | tail -n +4 | awk '/^[^d]+/' | LC_ALL=C sort -k 6
 }
 
 function --fzf-ls::main::executable::fzf {
